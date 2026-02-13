@@ -11,10 +11,29 @@
 
 ## 安装
 
-### 1. 安装依赖
+### 方式一：使用 pip（推荐用于已有Python环境）
+
+#### 1. 安装依赖
 
 ```bash
 pip install -r requirements.txt
+```
+
+### 方式二：使用 conda（推荐用于隔离环境）
+
+#### 1. 创建并激活conda环境
+
+```bash
+# 创建环境
+conda env create -f environment.yml
+
+# 激活环境
+conda activate ziyaoji
+```
+
+如果需要更新已有环境：
+```bash
+conda env update -f environment.yml --prune
 ```
 
 ### 2. 配置环境变量
@@ -46,6 +65,10 @@ QWEN_MODEL_NAME=qwen-plus
 ## 运行
 
 ```bash
+# 如果使用conda，确保已激活环境
+conda activate ziyaoji
+
+# 启动应用
 streamlit run app.py
 ```
 

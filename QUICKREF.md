@@ -2,9 +2,24 @@
 
 ## 一键启动
 
+### 使用 pip
+
 ```bash
 # 首次使用
 pip install -r requirements.txt
+cp .env.example .env
+# 编辑 .env 填入 QWEN_API_KEY
+
+# 启动应用
+streamlit run app.py
+```
+
+### 使用 conda（推荐）
+
+```bash
+# 首次使用
+conda env create -f environment.yml
+conda activate ziyaoji
 cp .env.example .env
 # 编辑 .env 填入 QWEN_API_KEY
 
@@ -37,6 +52,8 @@ streamlit run app.py
 
 ## 常用命令
 
+### pip环境
+
 ```bash
 # 环境检查
 python test_setup.py
@@ -49,6 +66,34 @@ cat logs.csv
 
 # 更新依赖
 pip install -r requirements.txt --upgrade
+```
+
+### conda环境
+
+```bash
+# 激活环境
+conda activate ziyaoji
+
+# 环境检查
+python test_setup.py
+
+# 启动应用
+streamlit run app.py
+
+# 查看日志
+cat logs.csv
+
+# 更新环境
+conda env update -f environment.yml --prune
+
+# 停用环境
+conda deactivate
+
+# 删除环境
+conda env remove -n ziyaoji
+
+# 列出所有环境
+conda env list
 ```
 
 ## 文件结构

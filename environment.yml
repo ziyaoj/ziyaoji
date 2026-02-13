@@ -1,0 +1,18 @@
+name: ziyaoji
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.8
+  - pip>=21.0
+  # PyTorch (CPU版本，适合集成显卡)
+  - pytorch>=2.0.0
+  - cpuonly
+  # 通过pip安装的包
+  - pip:
+      - streamlit>=1.30.0
+      - transformers>=4.36.0
+      - openai>=1.0.0
+      - python-dotenv>=1.0.0
+      - accelerate>=0.25.0

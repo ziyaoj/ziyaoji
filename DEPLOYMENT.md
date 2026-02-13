@@ -4,12 +4,26 @@
 
 ## 快速开始
 
-### 1. 安装依赖
+### 方式一：使用 pip
+
+#### 1. 安装依赖
 
 确保已安装 Python 3.8+，然后安装依赖：
 
 ```bash
 pip install -r requirements.txt
+```
+
+### 方式二：使用 conda（推荐）
+
+#### 1. 安装依赖
+
+使用conda创建隔离环境：
+
+```bash
+# 创建并激活conda环境
+conda env create -f environment.yml
+conda activate ziyaoji
 ```
 
 ### 2. 配置环境
@@ -37,6 +51,10 @@ python test_setup.py
 ### 4. 启动应用
 
 ```bash
+# 如果使用conda，确保已激活环境
+conda activate ziyaoji
+
+# 启动应用
 streamlit run app.py
 ```
 
@@ -81,6 +99,43 @@ export HF_ENDPOINT=https://hf-mirror.com
 - 小模型在集成显卡的 CPU 上推理速度约 2-5 秒/次
 - 大模型通过 API 调用，速度取决于网络和服务端
 - 系统会智能路由，简单问题直接用 FAQ 或小模型，复杂问题才用大模型
+
+### Q6: conda和pip应该选择哪个？
+
+**推荐使用conda的场景：**
+- 需要隔离的Python环境
+- 管理多个项目
+- 更方便管理PyTorch等科学计算库
+- 避免系统Python环境污染
+
+**使用pip的场景：**
+- 已有Python虚拟环境
+- 不想安装Anaconda/Miniconda
+- 系统资源有限
+
+**conda常用命令：**
+```bash
+# 创建环境
+conda env create -f environment.yml
+
+# 激活环境
+conda activate ziyaoji
+
+# 停用环境
+conda deactivate
+
+# 更新环境
+conda env update -f environment.yml --prune
+
+# 删除环境
+conda env remove -n ziyaoji
+
+# 列出所有环境
+conda env list
+
+# 导出环境
+conda env export > environment_backup.yml
+```
 
 ## 性能优化
 

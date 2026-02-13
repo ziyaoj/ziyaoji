@@ -46,9 +46,23 @@ def test_imports():
     
     if missing:
         print(f"\n请安装缺失的包:")
-        print(f"  pip install {' '.join(missing)}")
+        print(f"  使用pip: pip install {' '.join(missing)}")
+        print(f"  或使用conda: conda env create -f environment.yml")
         return False
     return True
+
+def test_environment():
+    """检测是否在conda环境中"""
+    import os
+    conda_env = os.environ.get('CONDA_DEFAULT_ENV')
+    if conda_env:
+        print(f"✓ 当前在conda环境中: {conda_env}")
+        if conda_env == 'ziyaoji':
+            print("  (推荐的项目环境)")
+        return True
+    else:
+        print("ℹ 当前不在conda环境中（使用系统Python）")
+        return False
 
 def main():
     print("=" * 60)
@@ -56,12 +70,17 @@ def main():
     print("=" * 60)
     print()
     
-    print("1. 检查依赖包...")
+    print("1. 检查运行环境...")
+    test_environment()
+    
+    print("\n2. 检查依赖包...")
     if not test_imports():
-        print("\n请先安装所有依赖: pip install -r requirements.txt")
+        print("\n请先安装所有依赖:")
+        print("  使用pip: pip install -r requirements.txt")
+        print("  使用conda: conda env create -f environment.yml")
         sys.exit(1)
     
-    print("\n2. 检查配置...")
+    print("\n3. 检查配置...")
     if not test_config():
         sys.exit(1)
     
