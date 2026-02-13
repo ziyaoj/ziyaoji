@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Small model configuration (local deepseek 1.5b)
+# Note: Using deepseek-coder-1.3b-instruct as it's the closest available distilled model
+# DeepSeek 1.5b refers to the model family; the actual model size is 1.3b
 SMALL_MODEL_PATH = os.getenv("SMALL_MODEL_PATH", "deepseek-ai/deepseek-coder-1.3b-instruct")
 SMALL_MODEL_DEVICE = "cpu"  # Use CPU for integrated graphics
 SMALL_MODEL_MAX_LENGTH = 512

@@ -7,6 +7,9 @@ from config import SMALL_MODEL_PATH, SMALL_MODEL_DEVICE, SMALL_MODEL_MAX_LENGTH
 _tokenizer = None
 _model = None
 
+# 低置信度关键词
+LOW_CONFIDENCE_KEYWORDS = ["不确定", "不太确定", "无法", "不知道", "抱歉"]
+
 def _load_model():
     """懒加载本地小模型"""
     global _tokenizer, _model
@@ -58,9 +61,8 @@ def small_model_answer(question: str) -> str:
         print(f"小模型推理错误: {e}")
         # 降级到简单回答
         time.sleep(0.1)
-        return f"[小模型] 关于'{question}'的问题，我不太确定如何回答"
+        return "[小模型] 我不太确定如何回答这个问题"
 
 def low_confidence(answer: str) -> bool:
     """判断小模型回答是否置信度低"""
-    low_confidence_keywords = ["不确定", "不太确定", "无法", "不知道", "抱歉"]
-    return any(keyword in answer for keyword in low_confidence_keywords) or len(answer) < 10
+    return any(keyword in answer for keyword in LOW_CONFIDENCE_KEYWORDS) or len(answer) < 10

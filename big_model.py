@@ -10,7 +10,7 @@ def _get_client():
     global _client
     if _client is None:
         if not BIG_MODEL_API_KEY:
-            raise ValueError("未配置QWEN_API_KEY，请在.env文件中配置")
+            raise ValueError("未配置QWEN_API_KEY，请在.env文件中配置或设置环境变量")
         _client = OpenAI(
             api_key=BIG_MODEL_API_KEY,
             base_url=BIG_MODEL_API_BASE

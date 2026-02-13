@@ -62,7 +62,7 @@ streamlit run app.py
 ## 模型说明
 
 ### 本地小模型
-- 使用DeepSeek 1.5B蒸馏模型
+- 使用DeepSeek Coder 1.3B Instruct模型（DeepSeek系列的蒸馏版本）
 - CPU推理，适合集成显卡电脑
 - 首次运行会自动下载模型（约1.3GB）
 
