@@ -3,6 +3,8 @@
 测试配置和基本功能
 """
 import sys
+from pathlib import Path
+import py_compile
 
 def test_config():
     """测试配置是否正确加载"""
@@ -64,6 +66,22 @@ def test_environment():
         print("ℹ 当前不在conda环境中（使用系统Python）")
         return False
 
+def test_python_syntax():
+    """检查项目中Python文件语法"""
+    project_dir = Path(__file__).resolve().parent
+    py_files = sorted(project_dir.glob("*.py"))
+    failed = []
+
+    for py_file in py_files:
+        try:
+            py_compile.compile(str(py_file), doraise=True)
+            print(f"✓ {py_file.name} 语法检查通过")
+        except py_compile.PyCompileError as e:
+            print(f"✗ {py_file.name} 语法错误: {e}")
+            failed.append(py_file.name)
+
+    return len(failed) == 0
+
 def main():
     print("=" * 60)
     print("校园问答调度系统 - 环境检查")
@@ -80,7 +98,11 @@ def main():
         print("  使用conda: conda env create -f environment.yml")
         sys.exit(1)
     
-    print("\n3. 检查配置...")
+    print("\n3. 检查Python语法...")
+    if not test_python_syntax():
+        sys.exit(1)
+
+    print("\n4. 检查配置...")
     if not test_config():
         sys.exit(1)
     
