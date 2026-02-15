@@ -8,6 +8,9 @@ from big_model import big_model_answer
 # 使用绝对路径避免工作目录问题
 FAQ_PATH = os.path.join(os.path.dirname(__file__), "faq.json")
 
+# 成本估算：每个token的成本（简化估算）
+COST_PER_TOKEN = 0.001
+
 # 模块级别缓存 FAQ 数据，避免重复读取文件
 _faq_cache = None
 
@@ -61,8 +64,8 @@ def route_question(question: str):
             if low_confidence(answer):
                 answer, usage_info = big_model_answer(question)
                 route = "big_model_fallback"
-                # 估算成本：通常按每千tokens计费，这里简化为 total_tokens * 0.001
-                cost = usage_info.get("total_tokens", 0) * 0.001
+                # 估算成本
+                cost = usage_info.get("total_tokens", 0) * COST_PER_TOKEN
 
     # 2) 中复杂度：先小模型，低置信度再回退
     elif score <= 3:
@@ -72,13 +75,13 @@ def route_question(question: str):
         if low_confidence(answer):
             answer, usage_info = big_model_answer(question)
             route = "big_model_fallback"
-            cost = usage_info.get("total_tokens", 0) * 0.001
+            cost = usage_info.get("total_tokens", 0) * COST_PER_TOKEN
 
     # 3) 高复杂度：直接大模型
     else:
         answer, usage_info = big_model_answer(question)
         route = "big_model"
-        cost = usage_info.get("total_tokens", 0) * 0.001
+        cost = usage_info.get("total_tokens", 0) * COST_PER_TOKEN
 
     response_time = time.time() - start
     log_event(question, score, route, response_time, cost)

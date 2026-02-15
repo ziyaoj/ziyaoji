@@ -100,8 +100,8 @@ def low_confidence(answer: str) -> bool:
     # 检查关键词，但确保不误判
     for k in keywords:
         if k in answer:
-            # 检查是否在排除短语中
-            if any(exc in answer for exc in exception_phrases if k in exc):
+            # 检查是否在排除短语中（排除短语必须包含该关键词且出现在答案中）
+            if any(exc in answer and k in exc for exc in exception_phrases):
                 continue
             return True
     
