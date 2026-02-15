@@ -6,6 +6,7 @@ from big_model import big_model_answer
 
 FAQ_PATH = "faq.json"
 
+
 def faq_answer(question: str) -> str:
     with open(FAQ_PATH, "r", encoding="utf-8") as f:
         faq = json.load(f)
@@ -14,22 +15,38 @@ def faq_answer(question: str) -> str:
         if any(k in question for k in item.get("keywords", [])):
             return item.get("answer", "暂无答案")
 
-    return "FAQ 未命中"
+    return "我还不知道呢，请再描述得详细一点"
+
 
 def route_question(question: str):
     score = complexity_score(question)
-    route = "faq"
     start = time.time()
+    route = "faq"
 
+    # 1) 低复杂度：先 FAQ
     if score <= 1:
         answer = faq_answer(question)
         route = "faq"
+
+        # FAQ 未命中再走小模型
+        if answer == "我还不知道呢，请再描述得详细一点":
+            answer = small_model_answer(question)
+            route = "small_model"
+
+            if low_confidence(answer):
+                answer = big_model_answer(question)
+                route = "big_model_fallback"
+
+    # 2) 中复杂度：先小模型，低置信度再回退
     elif score <= 3:
         answer = small_model_answer(question)
         route = "small_model"
+
         if low_confidence(answer):
             answer = big_model_answer(question)
             route = "big_model_fallback"
+
+    # 3) 高复杂度：直接大模型
     else:
         answer = big_model_answer(question)
         route = "big_model"
