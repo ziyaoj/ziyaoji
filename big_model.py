@@ -17,8 +17,8 @@ def _get_client():
         )
     return _client
 
-def big_model_answer(question: str) -> str:
-    """使用远程Qwen3大模型API回答问题"""
+def big_model_answer(question: str):
+    """使用远程Qwen3大模型API回答问题，返回(answer, usage_info)元组"""
     try:
         client = _get_client()
         
@@ -34,10 +34,19 @@ def big_model_answer(question: str) -> str:
         )
         
         answer = response.choices[0].message.content.strip()
-        return answer if answer else "大模型未返回有效回答"
+        
+        # 提取token使用量信息
+        usage = response.usage
+        usage_info = {
+            "prompt_tokens": usage.prompt_tokens if usage else 0,
+            "completion_tokens": usage.completion_tokens if usage else 0,
+            "total_tokens": usage.total_tokens if usage else 0,
+        }
+        
+        return (answer if answer else "大模型未返回有效回答", usage_info)
         
     except Exception as e:
         print(f"大模型API调用错误: {e}")
         # 降级到简单回答
         time.sleep(0.2)
-        return f"[大模型] 关于'{question}'，这是一个复杂的问题，建议您咨询相关部门获取准确信息。"
+        return (f"[大模型] 关于'{question}'，这是一个复杂的问题，建议您咨询相关部门获取准确信息。", {"total_tokens": 0})

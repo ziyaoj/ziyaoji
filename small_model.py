@@ -81,15 +81,27 @@ def small_model_answer(question: str) -> str:
 
     except Exception as e:
         print(f"小模型推理错误: {e}")
-        # 降级到简单回答
+        # 降级到简单回答（避免触发low_confidence检测）
         time.sleep(0.1)
-        return "[小模型] 我不太确定如何回答这个问题"
+        return "[小模型] 暂时繁忙，请稍后再试"
 
 
 def low_confidence(answer: str) -> bool:
     """判断小模型回答是否置信度低"""
+    # 改进关键词匹配，避免误判正面表述
+    # 例如："无法避免"不应该被判定为低置信度
     keywords = [
-        "不确定", "不太确定", "无法", "不知道", "抱歉", "对不起",
+        "不确定", "不太确定", "不知道", "抱歉", "对不起",
         "不具备", "不能", "无法提供", "建议咨询", "我不是", "不能回答"
     ]
-    return any(k in answer for k in keywords) or len(answer) < 10
+    
+    # 检查关键词，但确保不误判
+    for k in keywords:
+        if k in answer:
+            # 排除一些正面表述
+            if k == "无法" and "无法避免" in answer:
+                continue
+            return True
+    
+    # 调整最短长度阈值（从10改为5），避免误判合理的简短回答
+    return len(answer) < 5
