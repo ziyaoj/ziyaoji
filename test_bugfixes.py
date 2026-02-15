@@ -8,6 +8,9 @@ import tempfile
 import csv
 from datetime import datetime
 
+# 获取代码库路径
+REPO_PATH = os.path.dirname(os.path.abspath(__file__))
+
 
 # 直接测试函数逻辑，避免导入依赖
 def load_module_content(filepath):
@@ -184,8 +187,7 @@ def test_bug8_faq_absolute_path():
     print("\n测试 Bug 8: FAQ绝对路径...")
     
     # 直接检查router.py文件内容
-    repo_path = "/home/runner/work/ziyaoji/ziyaoji"
-    with open(os.path.join(repo_path, "router.py"), 'r', encoding='utf-8') as f:
+    with open(os.path.join(REPO_PATH, "router.py"), 'r', encoding='utf-8') as f:
         content = f.read()
         assert 'os.path.join(os.path.dirname(__file__), "faq.json")' in content, \
             "FAQ_PATH应该使用绝对路径"
@@ -215,11 +217,8 @@ def test_code_changes():
     """测试代码是否包含正确的修复"""
     print("\n测试代码级别的修复...")
     
-    # 读取文件内容进行验证
-    repo_path = "/home/runner/work/ziyaoji/ziyaoji"
-    
     # Bug 2: 检查empty check在函数开头
-    with open(os.path.join(repo_path, "utils.py"), 'r', encoding='utf-8') as f:
+    with open(os.path.join(REPO_PATH, "utils.py"), 'r', encoding='utf-8') as f:
         utils_content = f.read()
         # 查找complexity_score函数
         assert "if not q:\n        return 0" in utils_content, "空问题检查应该在计算之前"
@@ -228,7 +227,7 @@ def test_code_changes():
     print("  ✓ Bug 2: 代码已修复")
     
     # Bug 8: 检查FAQ路径是否使用绝对路径
-    with open(os.path.join(repo_path, "router.py"), 'r', encoding='utf-8') as f:
+    with open(os.path.join(REPO_PATH, "router.py"), 'r', encoding='utf-8') as f:
         router_content = f.read()
         assert 'os.path.join(os.path.dirname(__file__), "faq.json")' in router_content, \
             "FAQ_PATH应该使用绝对路径"
@@ -246,7 +245,7 @@ def test_code_changes():
     print("  ✓ Bug 5: 代码已修复")
     
     # Bug 1: 检查小模型异常处理
-    with open(os.path.join(repo_path, "small_model.py"), 'r', encoding='utf-8') as f:
+    with open(os.path.join(REPO_PATH, "small_model.py"), 'r', encoding='utf-8') as f:
         small_model_content = f.read()
         assert "[小模型] 暂时繁忙，请稍后再试" in small_model_content, \
             "异常处理应该返回不触发low_confidence的消息"
@@ -265,7 +264,7 @@ def test_code_changes():
     print("  ✓ Bug 7: 代码已修复")
     
     # Bug 3: 检查cost tracking
-    with open(os.path.join(repo_path, "big_model.py"), 'r', encoding='utf-8') as f:
+    with open(os.path.join(REPO_PATH, "big_model.py"), 'r', encoding='utf-8') as f:
         big_model_content = f.read()
         assert "usage_info" in big_model_content, "应该有usage_info"
         assert "total_tokens" in big_model_content, "应该返回total_tokens"

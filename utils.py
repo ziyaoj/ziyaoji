@@ -41,12 +41,9 @@ def log_event(question: str, score: int, route: str, response_time: float, cost:
     # 使用 'a+' 模式打开，然后检查文件是否为空来决定是否写表头
     # 这样可以避免 TOCTOU 竞态条件
     with open("logs.csv", "a+", newline="", encoding="utf-8") as f:
-        # 移动到文件开始检查是否为空
-        f.seek(0)
-        is_empty = len(f.read()) == 0
-        
-        # 回到文件末尾准备写入
+        # 移动到文件末尾并获取位置来判断文件是否为空
         f.seek(0, 2)
+        is_empty = f.tell() == 0
         
         writer = csv.writer(f)
         if is_empty:

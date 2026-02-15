@@ -89,17 +89,19 @@ def small_model_answer(question: str) -> str:
 def low_confidence(answer: str) -> bool:
     """判断小模型回答是否置信度低"""
     # 改进关键词匹配，避免误判正面表述
-    # 例如："无法避免"不应该被判定为低置信度
     keywords = [
         "不确定", "不太确定", "不知道", "抱歉", "对不起",
         "不具备", "不能", "无法提供", "建议咨询", "我不是", "不能回答"
     ]
     
+    # 排除一些正面表述的短语（避免误判）
+    exception_phrases = ["无法避免", "不能说", "不能否认"]
+    
     # 检查关键词，但确保不误判
     for k in keywords:
         if k in answer:
-            # 排除一些正面表述
-            if k == "无法" and "无法避免" in answer:
+            # 检查是否在排除短语中
+            if any(exc in answer for exc in exception_phrases if k in exc):
                 continue
             return True
     
