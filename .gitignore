@@ -40,3 +40,4 @@ models/
 
 # Logs
 *.log
+logs.csv
