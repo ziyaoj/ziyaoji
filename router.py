@@ -5,13 +5,8 @@ from utils import complexity_score, log_event
 from small_model import small_model_answer, low_confidence
 from big_model import big_model_answer
 
-# 使用绝对路径避免工作目录问题
 FAQ_PATH = os.path.join(os.path.dirname(__file__), "faq.json")
-
-# 成本估算：每个token的成本（简化估算）
 COST_PER_TOKEN = 0.001
-
-# 模块级别缓存 FAQ 数据，避免重复读取文件
 _faq_cache = None
 
 
@@ -26,50 +21,51 @@ def _load_faq():
 
 def faq_answer(question: str) -> str:
     faq = _load_faq()
-
-    # 加权匹配：计算每个FAQ条目的匹配度
     best_match = None
     best_score = 0
-    
+
     for item in faq:
         keywords = item.get("keywords", [])
         match_count = sum(1 for k in keywords if k in question)
-        
         if match_count > best_score:
             best_score = match_count
             best_match = item
-    
+
     if best_match:
         return best_match.get("answer", "暂无答案")
-
     return "我还不知道呢，请再描述得详细一点"
 
 
-def route_question(question: str):
+def route_question(question: str, history: list = None):
+    """
+    路由问题到合适的模型
+
+    参数:
+        question: 用户问题
+        history: 对话历史列表（可选），传递给小模型以支持上下文记忆
+    """
     score = complexity_score(question)
     start = time.time()
     route = "faq"
-    cost = 0  # 初始成本为0
+    cost = 0
 
     # 1) 低复杂度：先 FAQ
     if score <= 1:
         answer = faq_answer(question)
         route = "faq"
 
-        # FAQ 未命中再走小模型
         if answer == "我还不知道呢，请再描述得详细一点":
-            answer = small_model_answer(question)
+            answer = small_model_answer(question, history=history)
             route = "small_model"
 
             if low_confidence(answer):
                 answer, usage_info = big_model_answer(question)
                 route = "big_model_fallback"
-                # 估算成本
                 cost = usage_info.get("total_tokens", 0) * COST_PER_TOKEN
 
-    # 2) 中复杂度：先小模型，低置信度再回退
+    # 2) 中复杂度：先小模型
     elif score <= 3:
-        answer = small_model_answer(question)
+        answer = small_model_answer(question, history=history)
         route = "small_model"
 
         if low_confidence(answer):
