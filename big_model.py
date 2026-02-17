@@ -17,18 +17,25 @@ def _get_client():
         )
     return _client
 
-def big_model_answer(question: str):
+def big_model_answer(question: str, history: list = None):
     """使用远程Qwen3大模型API回答问题，返回(answer, usage_info)元组"""
     try:
         client = _get_client()
         
+        messages = [
+            {"role": "system", "content": "你是一个校园问答助手，请准确、详细地回答学生的问题。"},
+        ]
+        
+        # 加入对话历史
+        if history:
+            messages.extend(history[-6:])  # 最近3轮
+        
+        messages.append({"role": "user", "content": question})
+        
         # 调用Qwen API
         response = client.chat.completions.create(
             model=BIG_MODEL_NAME,
-            messages=[
-                {"role": "system", "content": "你是一个校园问答助手，请准确、详细地回答学生的问题。"},
-                {"role": "user", "content": question}
-            ],
+            messages=messages,
             max_tokens=BIG_MODEL_MAX_TOKENS,
             temperature=0.7
         )

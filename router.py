@@ -13,14 +13,17 @@ COST_PER_TOKEN = 0.001
 
 # 模块级别缓存 FAQ 数据，避免重复读取文件
 _faq_cache = None
+_faq_mtime = 0
 
 
 def _load_faq():
-    """懒加载FAQ数据"""
-    global _faq_cache
-    if _faq_cache is None:
+    """懒加载FAQ数据，支持热更新"""
+    global _faq_cache, _faq_mtime
+    current_mtime = os.path.getmtime(FAQ_PATH)
+    if _faq_cache is None or current_mtime > _faq_mtime:
         with open(FAQ_PATH, "r", encoding="utf-8") as f:
             _faq_cache = json.load(f)
+        _faq_mtime = current_mtime
     return _faq_cache
 
 
@@ -48,8 +51,10 @@ def faq_answer(question: str) -> str:
             old_keywords = item.get("keywords", [])
             if old_keywords:
                 match_count = sum(1 for k in old_keywords if k.lower() in q)
-                if match_count > best_score:
-                    best_score = match_count
+                # 与新格式 primary 权重对齐：旧格式关键词视为 primary 级别
+                weighted_score = match_count * 3
+                if weighted_score > best_score:
+                    best_score = weighted_score
                     best_match = item
                 continue
 
@@ -83,6 +88,10 @@ def route_question(question: str, history: list = None):
         question: 用户问题
         history: 对话历史列表（可选），传递给小模型以支持上下文记忆
     """
+    # 空问题检查：对空字符串或纯空白字符串直接返回提示
+    if not question or not question.strip():
+        return "请输入您的问题", {"score": 0, "route": "invalid", "response_time": 0, "cost": 0}
+    
     score = complexity_score(question)
     start = time.time()
     route = "faq"
@@ -97,8 +106,9 @@ def route_question(question: str, history: list = None):
             answer = small_model_answer(question, history=history)
             route = "small_model"
 
-            if low_confidence(answer):
-                answer, usage_info = big_model_answer(question)
+            # 检查小模型异常返回或低置信度，自动降级到大模型
+            if answer.startswith("[小模型]") or low_confidence(answer):
+                answer, usage_info = big_model_answer(question, history=history)
                 route = "big_model_fallback"
                 cost = usage_info.get("total_tokens", 0) * COST_PER_TOKEN
 
@@ -107,14 +117,15 @@ def route_question(question: str, history: list = None):
         answer = small_model_answer(question, history=history)
         route = "small_model"
 
-        if low_confidence(answer):
-            answer, usage_info = big_model_answer(question)
+        # 检查小模型异常返回或低置信度，自动降级到大模型
+        if answer.startswith("[小模型]") or low_confidence(answer):
+            answer, usage_info = big_model_answer(question, history=history)
             route = "big_model_fallback"
             cost = usage_info.get("total_tokens", 0) * COST_PER_TOKEN
 
     # 3) 高复杂度：直接大模型
     else:
-        answer, usage_info = big_model_answer(question)
+        answer, usage_info = big_model_answer(question, history=history)
         route = "big_model"
         cost = usage_info.get("total_tokens", 0) * COST_PER_TOKEN
 

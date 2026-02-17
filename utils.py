@@ -5,6 +5,9 @@ from datetime import datetime
 # 复杂问题关键词（可自行扩展）
 COMPLEX_KEYWORDS = ["分析", "对比", "规划", "设计", "为什么", "如何", "解释", "原因", "区别"]
 
+# 使用绝对路径避免工作目录问题
+LOG_PATH = os.path.join(os.path.dirname(__file__), "logs.csv")
+
 def complexity_score(question: str) -> int:
     q = question.strip()
     
@@ -40,7 +43,7 @@ def log_event(question: str, score: int, route: str, response_time: float, cost:
     """记录事件到日志文件，处理并发安全"""
     # 使用 'a+' 模式打开，然后检查文件是否为空来决定是否写表头
     # 这样可以避免 TOCTOU 竞态条件
-    with open("logs.csv", "a+", newline="", encoding="utf-8") as f:
+    with open(LOG_PATH, "a+", newline="", encoding="utf-8") as f:
         # 移动到文件末尾并获取位置来判断文件是否为空
         f.seek(0, 2)
         is_empty = f.tell() == 0
