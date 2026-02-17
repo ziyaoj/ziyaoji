@@ -5,13 +5,8 @@ from utils import complexity_score, log_event
 from small_model import small_model_answer, low_confidence
 from big_model import big_model_answer
 
-# 使用绝对路径避免工作目录问题
 FAQ_PATH = os.path.join(os.path.dirname(__file__), "faq.json")
-
-# 成本估算：每个token的成本（简化估算）
 COST_PER_TOKEN = 0.001
-
-# 模块级别缓存 FAQ 数据，避免重复读取文件
 _faq_cache = None
 
 
@@ -34,12 +29,16 @@ def faq_answer(question: str) -> str:
     - 多条都匹配时，取 (primary命中数 + secondary命中数) 最高的
     """
     faq = _load_faq()
+<<<<<<< HEAD
     q = question.lower()  # 统一小写，解决 WiFi/wifi 等大小写问题
 
+=======
+>>>>>>> a7959b17a4a1e2f61970ef9a5e37dc315fb331c0
     best_match = None
     best_score = 0
 
     for item in faq:
+<<<<<<< HEAD
         primary_keywords = item.get("primary", [])
         secondary_keywords = item.get("secondary", [])
 
@@ -67,11 +66,16 @@ def faq_answer(question: str) -> str:
 
         if score > best_score:
             best_score = score
+=======
+        keywords = item.get("keywords", [])
+        match_count = sum(1 for k in keywords if k in question)
+        if match_count > best_score:
+            best_score = match_count
+>>>>>>> a7959b17a4a1e2f61970ef9a5e37dc315fb331c0
             best_match = item
 
     if best_match:
         return best_match.get("answer", "暂无答案")
-
     return "我还不知道呢，请再描述得详细一点"
 
 
@@ -102,7 +106,7 @@ def route_question(question: str, history: list = None):
                 route = "big_model_fallback"
                 cost = usage_info.get("total_tokens", 0) * COST_PER_TOKEN
 
-    # 2) 中复杂度：先小模型，低置信度再回退
+    # 2) 中复杂度：先小模型
     elif score <= 3:
         answer = small_model_answer(question, history=history)
         route = "small_model"
