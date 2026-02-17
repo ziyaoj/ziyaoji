@@ -11,6 +11,10 @@ FAQ_PATH = os.path.join(os.path.dirname(__file__), "faq.json")
 # 成本估算：每个token的成本（简化估算）
 COST_PER_TOKEN = 0.001
 
+# FAQ评分权重常量
+PRIMARY_KEYWORD_WEIGHT = 3  # 第一关键词权重
+SECONDARY_KEYWORD_WEIGHT = 1  # 第二关键词权重
+
 # 模块级别缓存 FAQ 数据，避免重复读取文件
 _faq_cache = None
 _faq_mtime = 0
@@ -19,11 +23,17 @@ _faq_mtime = 0
 def _load_faq():
     """懒加载FAQ数据，支持热更新"""
     global _faq_cache, _faq_mtime
-    current_mtime = os.path.getmtime(FAQ_PATH)
-    if _faq_cache is None or current_mtime > _faq_mtime:
-        with open(FAQ_PATH, "r", encoding="utf-8") as f:
-            _faq_cache = json.load(f)
-        _faq_mtime = current_mtime
+    try:
+        current_mtime = os.path.getmtime(FAQ_PATH)
+        if _faq_cache is None or current_mtime > _faq_mtime:
+            with open(FAQ_PATH, "r", encoding="utf-8") as f:
+                _faq_cache = json.load(f)
+            _faq_mtime = current_mtime
+    except FileNotFoundError:
+        # FAQ文件不存在，返回空列表
+        if _faq_cache is None:
+            _faq_cache = []
+        _faq_mtime = 0
     return _faq_cache
 
 
@@ -52,7 +62,7 @@ def faq_answer(question: str) -> str:
             if old_keywords:
                 match_count = sum(1 for k in old_keywords if k.lower() in q)
                 # 与新格式 primary 权重对齐：旧格式关键词视为 primary 级别
-                weighted_score = match_count * 3
+                weighted_score = match_count * PRIMARY_KEYWORD_WEIGHT
                 if weighted_score > best_score:
                     best_score = weighted_score
                     best_match = item
@@ -68,7 +78,7 @@ def faq_answer(question: str) -> str:
 
         # 总分 = primary命中数 × 3 + secondary命中数 × 1
         # primary 权重更高，确保主题越精准排越前
-        score = primary_hits * 3 + secondary_hits
+        score = primary_hits * PRIMARY_KEYWORD_WEIGHT + secondary_hits * SECONDARY_KEYWORD_WEIGHT
 
         if score > best_score:
             best_score = score

@@ -26,7 +26,7 @@ def big_model_answer(question: str, history: list = None):
             {"role": "system", "content": "你是一个校园问答助手，请准确、详细地回答学生的问题。"},
         ]
         
-        # 加入对话历史
+        # 加入对话历史（最近3轮对话，共6条消息）
         if history:
             messages.extend(history[-6:])  # 最近3轮
         

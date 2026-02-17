@@ -105,8 +105,11 @@ def test_problem6_unified_scoring():
     
     with open(os.path.join(SCRIPT_DIR, "router.py"), 'r', encoding='utf-8') as f:
         content = f.read()
-        assert 'weighted_score = match_count * 3' in content, \
-            "旧格式应该使用加权评分(×3)"
+        # 检查使用了常量
+        assert 'PRIMARY_KEYWORD_WEIGHT' in content, \
+            "应该定义PRIMARY_KEYWORD_WEIGHT常量"
+        assert 'match_count * PRIMARY_KEYWORD_WEIGHT' in content, \
+            "旧格式应该使用PRIMARY_KEYWORD_WEIGHT加权"
         assert '与新格式 primary 权重对齐' in content or 'primary 级别' in content, \
             "应该有注释说明权重对齐"
     
