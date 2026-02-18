@@ -1,5 +1,4 @@
 import time
-from collections import deque
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 from config import SMALL_MODEL_PATH, SMALL_MODEL_DEVICE, SMALL_MODEL_MAX_LENGTH
@@ -48,6 +47,7 @@ def small_model_answer(question: str, history: list = None) -> str:
                 "content": (
                     "你是校园问答助手。请用一两句话简短回答，不超过100字。"
                     "直接给出答案，不要重复问题，不要说多余的话。"
+                    "每次只回答用户当前的问题，不要续写或补充之前的回答。"
                 ),
             },
         ]
@@ -75,7 +75,7 @@ def small_model_answer(question: str, history: list = None) -> str:
         with torch.no_grad():
             outputs = _model.generate(
                 **inputs,
-                max_new_tokens=80,  # 从128减少到80，更严格控制长度
+                max_new_tokens=50,  # 从80降到50，让模型更自然地在短位置结束
                 temperature=0.3,
                 do_sample=True,
                 top_p=0.8,
@@ -89,47 +89,12 @@ def small_model_answer(question: str, history: list = None) -> str:
         gen_ids = outputs[0][inputs["input_ids"].shape[-1]:]
         answer = _tokenizer.decode(gen_ids, skip_special_tokens=True).strip()
 
-        # 如果有代码块，直接保留
-        if "```" in answer:
-            return answer
-
-        # ========== 改进：更严格的截断 —— 最多两句且不超过100字 ==========
-        answer = _truncate_answer(answer, max_sentences=2, max_chars=100)
-
         return answer if answer else "无法生成回答"
 
     except Exception as e:
         print(f"小模型推理错误: {e}")
         time.sleep(0.1)
         return "[小模型] 暂时繁忙，请稍后再试"
-
-
-def _truncate_answer(text: str, max_sentences: int = 2, max_chars: int = 100) -> str:
-    """截断回答：最多 max_sentences 句，且不超过 max_chars 个字符"""
-    seps = ["。", "！", "？", ".", "!", "?"]
-    sentences = []
-    buf = ""
-    for ch in text:
-        buf += ch
-        if ch in seps:
-            sentences.append(buf.strip())
-            buf = ""
-            if len(sentences) >= max_sentences:
-                break
-
-    result = "".join(sentences) if sentences else text
-
-    # 硬截断到 max_chars
-    if len(result) > max_chars:
-        # 在 max_chars 范围内找最后一个句号截断
-        truncated = result[:max_chars]
-        for sep in seps:
-            idx = truncated.rfind(sep)
-            if idx > 0:
-                return truncated[:idx + 1]
-        return truncated + "…"
-
-    return result
 
 
 def low_confidence(answer: str) -> bool:
