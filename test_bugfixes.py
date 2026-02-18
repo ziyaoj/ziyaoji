@@ -127,7 +127,7 @@ def test_bug6_low_confidence():
     assert not low_confidence("这是无法避免的情况"), "正面表述'无法避免'不应该被误判"
     
     # 测试合理的简短回答不应该被误判（长度>=5）
-    assert not low_confidence("可以的"), "5个字的回答不应该被误判"
+    assert not low_confidence("可以的哦啊"), "5个字的回答不应该被误判"
     assert low_confidence("好的"), "2个字的回答应该被判定为低置信度"
     
     # 测试真正的低置信度回答

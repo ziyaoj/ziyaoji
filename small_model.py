@@ -165,8 +165,8 @@ def low_confidence(answer: str) -> bool:
     
     # 5. 重复字符/模式检测：检测连续重复的符号（如 )))) 或 ]]]]）
     import re
-    # 检测连续3个以上相同的特殊符号
-    repeated_pattern = re.search(r'([^\w\s])\1{2,}', answer)
+    # 检测连续4个以上相同的特殊符号（排除常见的省略号...）
+    repeated_pattern = re.search(r'([^\w\s])\1{3,}', answer)
     if repeated_pattern:
         return True
 
