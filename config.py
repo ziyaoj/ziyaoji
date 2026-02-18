@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Small model configuration (local deepseek 1.5b)
-# Note: Using deepseek-coder-1.3b-instruct as it's the closest available distilled model
-# DeepSeek 1.5b refers to the model family; the actual model size is 1.3b
-SMALL_MODEL_PATH = os.getenv("SMALL_MODEL_PATH", "deepseek-ai/deepseek-coder-1.3b-instruct")
+# Small model configuration (local Qwen2 1.5B for Chinese dialogue)
+# Note: Using Qwen2-1.5B-Instruct for better Chinese conversation capabilities
+# Qwen2 1.5B is optimized for Chinese dialogue and general Q&A scenarios
+SMALL_MODEL_PATH = os.getenv("SMALL_MODEL_PATH", "Qwen/Qwen2-1.5B-Instruct")
 SMALL_MODEL_DEVICE = "cpu"  # Use CPU for integrated graphics
 SMALL_MODEL_MAX_LENGTH = 512
 

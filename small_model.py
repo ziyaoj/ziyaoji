@@ -1,4 +1,5 @@
 import time
+import re
 from collections import deque
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
@@ -31,7 +32,7 @@ def _load_model():
 
 def small_model_answer(question: str, history: list = None) -> str:
     """
-    使用本地DeepSeek 1.5b模型回答问题
+    使用本地Qwen2 1.5B模型回答问题
 
     参数:
         question: 用户当前问题
@@ -141,10 +142,33 @@ def low_confidence(answer: str) -> bool:
     ]
     exception_phrases = ["无法避免", "不能说", "不能否认"]
 
+    # 1. 关键词检测（原有逻辑）
     for k in keywords:
         if k in answer:
             if any(exc in answer and k in exc for exc in exception_phrases):
                 continue
             return True
 
-    return len(answer) < 5
+    # 2. 长度检测（原有逻辑）
+    if len(answer) < 5:
+        return True
+    
+    # 3. 特殊符号比例检测：检测乱码输出（如大量括号、引号等）
+    special_chars = "[]{}()\"'`，,。.！!？?；;：:、|\\/@#$%^&*~+=<>"
+    special_count = sum(1 for ch in answer if ch in special_chars)
+    if len(answer) > 0 and special_count / len(answer) > 0.3:
+        return True
+    
+    # 4. 中文字符占比检测：如果中文字符过少，可能是乱码或不相关内容
+    chinese_count = sum(1 for ch in answer if '\u4e00' <= ch <= '\u9fff')
+    # 排除纯英文合理回答的情况：如果有中文字符但占比过低，判定为低置信度
+    if chinese_count > 0 and len(answer) > 0 and chinese_count / len(answer) < 0.2:
+        return True
+    
+    # 5. 重复字符/模式检测：检测连续重复的符号（如 )))) 或 ]]]]）
+    # 检测连续4个以上相同的特殊符号（正常省略号...只有3个点，不会被误判）
+    repeated_pattern = re.search(r'([^\w\s])\1{3,}', answer)
+    if repeated_pattern:
+        return True
+
+    return False
