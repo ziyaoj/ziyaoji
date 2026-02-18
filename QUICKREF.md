@@ -31,7 +31,7 @@ streamlit run app.py
 
 | 变量名 | 说明 | 默认值 | 必需 |
 |--------|------|--------|------|
-| `SMALL_MODEL_PATH` | 小模型路径或名称 | `deepseek-ai/deepseek-coder-1.3b-instruct` | 否 |
+| `SMALL_MODEL_PATH` | 小模型路径或名称 | `Qwen/Qwen2-1.5B-Instruct` | 否 |
 | `QWEN_API_KEY` | Qwen API 密钥 | - | **是** |
 | `QWEN_API_BASE` | Qwen API 地址 | `https://dashscope.aliyuncs.com/compatible-mode/v1` | 否 |
 | `QWEN_MODEL_NAME` | Qwen 模型名称 | `qwen-plus` | 否 |
@@ -128,7 +128,7 @@ conda env list
 | 组件 | CPU | 内存 | 磁盘 |
 |------|-----|------|------|
 | Streamlit | 低 | ~200MB | - |
-| 小模型 | 中 | ~2GB | ~1.3GB |
+| 小模型 | 中 | ~2GB | ~1.5GB |
 | 大模型API | 极低 | 极低 | - |
 
 ## 故障排除速查
@@ -144,5 +144,5 @@ conda env list
 ## 链接
 
 - 阿里云 DashScope: https://dashscope.aliyun.com/
-- DeepSeek 模型: https://huggingface.co/deepseek-ai/deepseek-coder-1.3b-instruct
+- Qwen2 模型: https://huggingface.co/Qwen/Qwen2-1.5B-Instruct
 - Streamlit 文档: https://docs.streamlit.io/

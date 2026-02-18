@@ -5,7 +5,7 @@
 ## 特性
 
 - **FAQ快速匹配**：常见问题直接返回预设答案
-- **本地小模型**：使用DeepSeek 1.5B蒸馏模型（CPU推理，适合集成显卡电脑）
+- **本地小模型**：使用Qwen2 1.5B Instruct模型（CPU推理，适合集成显卡电脑）
 - **远程大模型**：通过API调用Qwen3大模型处理复杂问题
 - **智能路由**：根据问题复杂度自动选择合适的处理方式
 
@@ -48,7 +48,7 @@ cp .env.example .env
 
 ```env
 # 小模型配置（可使用默认值）
-SMALL_MODEL_PATH=deepseek-ai/deepseek-coder-1.3b-instruct
+SMALL_MODEL_PATH=Qwen/Qwen2-1.5B-Instruct
 
 # 大模型配置（必须配置）
 QWEN_API_KEY=你的阿里云DashScope API密钥
@@ -85,9 +85,10 @@ streamlit run app.py
 ## 模型说明
 
 ### 本地小模型
-- 使用DeepSeek Coder 1.3B Instruct模型（DeepSeek系列的蒸馏版本）
+- 使用Qwen2 1.5B Instruct模型（阿里通义千问系列）
+- 专为中文对话优化，适合日常问答场景
 - CPU推理，适合集成显卡电脑
-- 首次运行会自动下载模型（约1.3GB）
+- 首次运行会自动下载模型（约1.5GB）
 
 ### 远程大模型
 - 使用Qwen3大模型API

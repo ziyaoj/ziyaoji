@@ -134,7 +134,25 @@ def test_bug6_low_confidence():
     assert low_confidence("我不确定"), "包含'不确定'应该被判定为低置信度"
     assert low_confidence("抱歉"), "包含'抱歉'应该被判定为低置信度"
     
-    print("✓ Bug 6 已修复: low_confidence减少了误判")
+    # 新增：测试特殊符号比例检测
+    assert low_confidence("]]]]}}}}],,,""""""]"), "大量特殊符号应该被判定为低置信度"
+    assert low_confidence("[[[[[{{{{{((((("), "大量括号应该被判定为低置信度"
+    assert not low_confidence("这是一个正常的回答，包含标点。"), "正常标点不应该被误判"
+    
+    # 新增：测试中文字符占比检测
+    assert low_confidence("OpenVINO™ Intel Xeon Phi CPPESA-Tech Team 2.5版"), \
+        "中文字符占比过低应该被判定为低置信度"
+    assert not low_confidence("This is a valid English answer"), \
+        "纯英文回答（无中文）不应该被误判"
+    assert not low_confidence("这是一个正常的中文回答"), \
+        "正常中文回答不应该被误判"
+    
+    # 新增：测试重复字符/模式检测
+    assert low_confidence("回答内容))))))))"), "连续重复符号应该被判定为低置信度"
+    assert low_confidence("答案是：]]]]]]"), "连续重复符号应该被判定为低置信度"
+    assert not low_confidence("这是...一个正常的回答"), "正常省略号不应该被误判"
+    
+    print("✓ Bug 6 已修复: low_confidence减少了误判并增强了乱码检测")
 
 
 def test_bug7_log_event_race_condition():
