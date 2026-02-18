@@ -21,7 +21,7 @@ def _load_model():
         _tokenizer = AutoTokenizer.from_pretrained(SMALL_MODEL_PATH, trust_remote_code=True)
         _model = AutoModelForCausalLM.from_pretrained(
             SMALL_MODEL_PATH,
-            torch_dtype=torch.float32,
+            dtype=torch.float32,
             device_map=SMALL_MODEL_DEVICE,
             trust_remote_code=True,
             low_cpu_mem_usage=True
@@ -48,6 +48,7 @@ def small_model_answer(question: str, history: list = None) -> str:
                 "content": (
                     "你是校园问答助手。请用一两句话简短回答，不超过100字。"
                     "直接给出答案，不要重复问题，不要说多余的话。"
+                    "每次只回答用户当前的问题，不要续写或补充之前的回答。"
                 ),
             },
         ]
